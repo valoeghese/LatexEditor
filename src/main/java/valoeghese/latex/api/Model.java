@@ -21,13 +21,55 @@ public class Model {
 
 	private final LatexViewer viewer = new LatexViewer(this);
 	private final LatexEditor editor = new LatexEditor(this);
+	private boolean documentSaved = true;
 
 	/**
-	 * Open the file in the editor.
+	 * Open the file in the editor. If progress is currently unsaved, the user will be prompted to save.
 	 * @param path the file to open.
 	 */
 	public void open(Path path) {
+		if (this.documentSaved) {
+			this._open(path);
+		} else {
+			PromptResponse response = this.showSavePrompt();
+
+			if (response == PromptResponse.YES) {
+				if (!this.editor.saveFile()) {
+					this.showSaveFailedMessage();
+					return; // early return is cleaner here
+				}
+			}
+
+			if (response != PromptResponse.CANCEL) {
+				this._open(path);
+			}
+		}
+	}
+
+	private void _open(Path path) {
 		this.editor.setContents(this.openFile(path));
+	}
+
+	private PromptResponse showSavePrompt() {
+		String[] options = { "Save", "Don't Save", "Cancel" };
+
+		return PromptResponse.values()[
+				JOptionPane.showOptionDialog(null,
+						"If you don't save, all unsaved changes will be lost!",
+						"Save Changes?",
+						JOptionPane.DEFAULT_OPTION,
+						JOptionPane.WARNING_MESSAGE,
+						null,
+						options,
+						options[0])
+				];
+	}
+
+	private void showSaveFailedMessage() {
+		JOptionPane.showMessageDialog(null,
+				"Document failed to save.",
+				"Error",
+				JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
@@ -40,6 +82,8 @@ public class Model {
 		if (this.frame != null) {
 			this.frame.setTitle(this.defaultName + (saved ? "" : " *"));
 		}
+
+		this.documentSaved = saved;
 	}
 
 	/**

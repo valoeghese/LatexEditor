@@ -27,12 +27,7 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 		actionMap.put("saveAction", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Saving...");
-
-				if (LatexEditor.this.contents.writeText(LatexEditor.this.textArea.getText())) {
-					System.out.println("Saved.");
-					LatexEditor.this.model.setDocumentSaved(true);
-				}
+				LatexEditor.this.saveFile();
 			}
 		});
 
@@ -52,6 +47,22 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 		// upon loading a new document it is not yet edited
 		// also important because setting the text above modifies the document saved via our event listener.
 		this.model.setDocumentSaved(true);
+	}
+
+	/**
+	 * Save the file. If the file fails to save, the caller is notified by returning false.
+	 * @return whether the file could be saved.
+	 */
+	public boolean saveFile() {
+		System.out.println("Saving...");
+
+		if (LatexEditor.this.contents.writeText(LatexEditor.this.textArea.getText())) {
+			System.out.println("Saved.");
+			LatexEditor.this.model.setDocumentSaved(true);
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
