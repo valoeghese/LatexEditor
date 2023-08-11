@@ -62,6 +62,8 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 			return true;
 		}
 
+		System.out.println("Failed to Save File.");
+
 		return false;
 	}
 

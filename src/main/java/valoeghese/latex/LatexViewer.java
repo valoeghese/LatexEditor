@@ -9,12 +9,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,7 +43,9 @@ public class LatexViewer extends JScrollPane {
 
 				try {
 					// TODO dont require bash
-					ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "pdflatex " + sourceFile.toAbsolutePath());
+					String cmd = "pdflatex " + sourceFile.toAbsolutePath();
+					System.out.println("Running command: " + cmd);
+					ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);
 					processBuilder.directory(sourceFile.getParent().toFile()); // Set the working directory
 					Process process = processBuilder.start();
 
@@ -52,9 +56,36 @@ public class LatexViewer extends JScrollPane {
 					outputStream.flush();
 					outputStream.close();
 
+					AtomicBoolean shouldStop = new AtomicBoolean(false);
+					Thread pipeThread = new Thread(() -> {
+						StringBuilder buffer = new StringBuilder();
+
+						try (InputStream stream = process.getInputStream()) {
+							while (!shouldStop.get()) {
+								int next = stream.read();
+								if (next == 0xFFFFFFFF) continue;
+								buffer.appendCodePoint(next);
+
+								if (buffer.charAt(buffer.length() - 1) == '\n') {
+									System.out.print("PDFLatex: " + buffer);
+									buffer = new StringBuilder();
+								}
+							}
+
+							System.out.println("Closing input stream from process.");
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+					pipeThread.setDaemon(true);
+					pipeThread.start();
 					// TODO pipe this into somewhere? like a status message under rendering| process.getInputStream()
 
-					return process.waitFor();
+					try {
+						return process.waitFor();
+					} finally {
+						shouldStop.set(true);
+					}
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 

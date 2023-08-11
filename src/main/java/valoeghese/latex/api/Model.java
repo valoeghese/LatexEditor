@@ -35,7 +35,6 @@ public class Model {
 
 			if (response == PromptResponse.YES) {
 				if (!this.editor.saveFile()) {
-					this.showSaveFailedMessage();
 					return; // early return is cleaner here
 				}
 			}
@@ -64,13 +63,6 @@ public class Model {
 						options,
 						options[0])
 				];
-	}
-
-	private void showSaveFailedMessage() {
-		JOptionPane.showMessageDialog(null,
-				"Document failed to save.",
-				"Error",
-				JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
@@ -107,14 +99,26 @@ public class Model {
 	}
 
 	private boolean saveFile(Path path, String string) {
-		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-			writer.write(string);
+		try {
+			try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+				writer.write(string);
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				this.showSaveFailedMessage(e);
+				return false;
+			}
+		} finally {
+			// implicit finally block of previous try needs to run first to close resources.
 			this.viewer.render(path);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
 		}
+	}
+
+	private void showSaveFailedMessage(Exception e) {
+		JOptionPane.showMessageDialog(null,
+				"Document failed to save. " + e.getClass().getSimpleName() + ": " + e.getMessage(),
+				"Error",
+				JOptionPane.ERROR_MESSAGE);
 	}
 
 	public LatexViewer getViewer() {
