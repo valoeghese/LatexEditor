@@ -1,16 +1,18 @@
 package valoeghese.latex;
 
+import valoeghese.latex.api.Model;
+
 import javax.swing.*;
 import java.awt.*;
 import java.nio.file.Path;
 
 public class Main extends JSplitPane {
-	public Main() {
-		this.setLeftComponent(new FilePicker(Path.of(System.getProperty("user.dir"))));
+	public Main(Model model) {
+		this.setLeftComponent(new FilePicker(model, Path.of(System.getProperty("user.dir"))));
 
 		JPanel mainArea = new JPanel(new GridLayout(1, 2));
-		mainArea.add(new LatexEditor());
-		mainArea.add(new LatexViewer());
+		mainArea.add(model.getEditor());
+		mainArea.add(model.getViewer());
 
 		this.setRightComponent(mainArea);
 	}
@@ -18,17 +20,17 @@ public class Main extends JSplitPane {
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-		if ("Linux".equals(System.getProperty("os.name"))) {
-			// Try GTK Look and Feel
-			try {
-				UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-			} catch (Exception e) {
-				System.out.println("Could not find GTK LaF on Linux instance. Skipping...");
-			}
-		}
+//		if ("Linux".equals(System.getProperty("os.name"))) {
+//			// Try GTK Look and Feel
+//			try {
+//				UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+//			} catch (Exception e) {
+//				System.out.println("Could not find GTK LaF on Linux instance. Skipping...");
+//			}
+//		}
 
 		JFrame frame = new JFrame("Latex Editor");
-		JSplitPane master = (JSplitPane) frame.add(new Main());
+		JSplitPane master = (JSplitPane) frame.add(new Main(new Model()));
 		master.setDividerLocation(150);
 
 		/*

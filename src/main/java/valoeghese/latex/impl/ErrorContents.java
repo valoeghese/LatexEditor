@@ -4,10 +4,11 @@ import valoeghese.latex.api.FileContents;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public record ErrorContents(String message) implements FileContents {
-	public ErrorContents(File file, IOException e) {
-		this("Failed to open " + file + ". " + e.getClass().getSimpleName() + ": " + e.getMessage());
+	public ErrorContents(Path path, IOException e) {
+		this("Failed to open " + path.getFileName() + ". " + e.getClass().getSimpleName() + ": " + e.getMessage());
 	}
 
 	@Override
