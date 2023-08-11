@@ -43,7 +43,11 @@ public class LatexViewer extends JScrollPane {
 
 				try {
 					// TODO dont require bash
-					ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "pdflatex", sourceFile.toAbsolutePath().toString());
+					String cmd = "pdflatex \""
+							+ sourceFile.toAbsolutePath().toString().replace("\"", "\\\"")
+							+ "\"";
+					System.out.println("Running " + cmd);
+					ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);
 					processBuilder.directory(sourceFile.getParent().toFile()); // Set the working directory
 					Process process = processBuilder.start();
 
