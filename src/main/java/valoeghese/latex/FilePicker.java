@@ -46,8 +46,8 @@ public class FilePicker extends JScrollPane {
 			if (e.getPath().getLastPathComponent() instanceof DefaultMutableTreeNode treeNode) {
 				if (treeNode.getUserObject() instanceof FileTreeNode node) {
 					if (Files.isRegularFile(node.getFile())) {
+						System.out.println("Opening " + node.getFile());
 						model.open(node.getFile());
-						System.out.println("opening");
 					}
 				}
 			}
