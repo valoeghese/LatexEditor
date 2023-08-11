@@ -42,6 +42,7 @@ public class FilePicker extends JScrollPane {
 			}
 		});
 
+		//TODo reload file tree when opening folder
 		tree.addTreeSelectionListener(e -> {
 			if (e.getPath().getLastPathComponent() instanceof DefaultMutableTreeNode treeNode) {
 				if (treeNode.getUserObject() instanceof FileTreeNode node) {

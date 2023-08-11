@@ -19,7 +19,7 @@ public class Model {
 	private final JFrame frame;
 	private final String defaultName;
 
-	private final LatexViewer viewer = new LatexViewer(this);
+	private final LatexViewer viewer = new LatexViewer();
 	private final LatexEditor editor = new LatexEditor(this);
 	private boolean documentSaved = true;
 
@@ -47,7 +47,8 @@ public class Model {
 	}
 
 	private void _open(Path path) {
-		this.editor.setContents(this.openFile(path));
+		this.editor.setContents(this.readFile(path));
+		this.viewer.loadRender(path);
 	}
 
 	private PromptResponse showSavePrompt() {
@@ -92,7 +93,7 @@ public class Model {
 	 * @return the contents of the file. Will return a {@linkplain FileContents#isWritable() non-writable} file contents
 	 * if an error occurs.
 	 */
-	private FileContents openFile(Path path) {
+	private FileContents readFile(Path path) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path)))) {
 			return new Contents(
 					path,
@@ -108,6 +109,7 @@ public class Model {
 	private boolean saveFile(Path path, String string) {
 		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 			writer.write(string);
+			this.viewer.render(path);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
