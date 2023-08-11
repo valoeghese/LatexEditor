@@ -2,6 +2,7 @@ package valoeghese.latex;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import valoeghese.latex.api.OperatingSystem;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -47,9 +48,7 @@ public class LatexViewer extends JScrollPane {
 							+ sourceFile.toAbsolutePath().toString().replace("\"", "\\\"")
 							+ "\"";
 					System.out.println("Running " + cmd);
-					ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);
-					processBuilder.directory(sourceFile.getParent().toFile()); // Set the working directory
-					Process process = processBuilder.start();
+					Process process = OperatingSystem.get().executeCommand(cmd, sourceFile.getParent()); // Set the working directory
 
 					// dummy inputs
 					OutputStream outputStream = process.getOutputStream();

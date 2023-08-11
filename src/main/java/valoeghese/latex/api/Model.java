@@ -28,26 +28,41 @@ public class Model {
 	 * @param path the file to open.
 	 */
 	public void open(Path path) {
-		if (this.documentSaved) {
+		if (this.promptSaveBeforeAction()) {
 			this._open(path);
-		} else {
-			PromptResponse response = this.showSavePrompt();
-
-			if (response == PromptResponse.YES) {
-				if (!this.editor.saveFile()) {
-					return; // early return is cleaner here
-				}
-			}
-
-			if (response != PromptResponse.CANCEL) {
-				this._open(path);
-			}
 		}
 	}
 
 	private void _open(Path path) {
 		this.editor.setContents(this.readFile(path));
 		this.viewer.loadRender(path);
+	}
+
+	/**
+	 * If the document is unsaved, prompt the user to save before continuing with the action.
+	 * The user will have the options "Save", "Don't Save", and "Cancel".
+	 * @return whether the action should continue. N.B. if the user selected "Save" and the document
+	 * failed to save, the action should not continue.
+	 */
+	public boolean promptSaveBeforeAction() {
+		// only need to prompt if document not already saved
+		if (!this.documentSaved) {
+			PromptResponse response = this.showSavePrompt();
+
+			if (response == PromptResponse.YES) {
+				// if the save failed, don't run the action, because user wanted to save!
+				if (!this.editor.saveFile()) {
+					return false;
+				}
+			}
+
+			// if the user cancelled, don't run the action
+			if (response == PromptResponse.CANCEL) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private PromptResponse showSavePrompt() {

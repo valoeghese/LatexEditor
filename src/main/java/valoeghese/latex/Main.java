@@ -1,9 +1,12 @@
 package valoeghese.latex;
 
 import valoeghese.latex.api.Model;
+import valoeghese.latex.api.PromptResponse;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.nio.file.Path;
 
 public class Main extends JSplitPane {
@@ -30,7 +33,8 @@ public class Main extends JSplitPane {
 //		}
 
 		JFrame frame = new JFrame("Latex Editor");
-		JSplitPane master = (JSplitPane) frame.add(new Main(new Model(frame)));
+		Model model = new Model(frame);
+		JSplitPane master = (JSplitPane) frame.add(new Main(model));
 		master.setDividerLocation(150);
 
 		/*
@@ -39,7 +43,17 @@ public class Main extends JSplitPane {
 		 */
 		frame.setSize(new Dimension(1080, 720));
 		frame.setMinimumSize(new Dimension(360, 240));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (model.promptSaveBeforeAction()) {
+					frame.dispose();
+				}
+			}
+		});
+
 		frame.setVisible(true);
 	}
 }

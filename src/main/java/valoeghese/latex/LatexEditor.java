@@ -6,6 +6,7 @@ import valoeghese.latex.api.Model;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -31,7 +32,67 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 			}
 		});
 
+		inputMap.put(KeyStroke.getKeyStroke("TAB"), "indentAction");
+		actionMap.put("indentAction", new AbstractAction() {
+			// TODO make tabs and space width an option
+			// TODO indent entire line
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LatexEditor.this.textArea.replaceSelection("    ");
+			}
+		});
+
+		inputMap.put(KeyStroke.getKeyStroke("ENTER"), "newLineAction");
+		actionMap.put("newLineAction", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextArea ta = LatexEditor.this.textArea;
+				int caretPosition = ta.getCaretPosition();
+				javax.swing.text.Element root = textArea.getDocument().getDefaultRootElement();
+				javax.swing.text.Element line = root.getElement(root.getElementIndex(caretPosition));
+
+				// read line
+				int start = line.getStartOffset();
+				int end = line.getEndOffset() - 1;
+				String indent = "";
+
+				try {
+					String text = ta.getDocument().getText(start, end - start);
+					StringBuilder indentBuilder = new StringBuilder();
+
+					for (char c : text.toCharArray()) {
+						if (!Character.isWhitespace(c)) break;
+						indentBuilder.append(c);
+					}
+
+					indent = indentBuilder.toString();
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
+				}
+
+				ta.replaceSelection("\n" + indent);
+			}
+		});
+
 		this.setContents(new EmptyContents());
+	}
+
+	/**
+	 * Get the line of text at the given line number.
+	 * @param lineNumber the zero-indexed line number.
+	 * @return the line of text, or "" if an error occurs.
+	 */
+	private String getLineText(int lineNumber) {
+		try {
+			javax.swing.text.Element root = this.textArea.getDocument().getDefaultRootElement();
+			javax.swing.text.Element lineElement = root.getElement(lineNumber);
+			int start = lineElement.getStartOffset();
+			int end = lineElement.getEndOffset() - 1;
+			return this.textArea.getDocument().getText(start, end - start);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	private final JTextArea textArea;
