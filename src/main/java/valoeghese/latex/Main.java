@@ -30,7 +30,7 @@ public class Main extends JSplitPane {
 //		}
 
 		JFrame frame = new JFrame("Latex Editor");
-		JSplitPane master = (JSplitPane) frame.add(new Main(new Model()));
+		JSplitPane master = (JSplitPane) frame.add(new Main(new Model(frame)));
 		master.setDividerLocation(150);
 
 		/*

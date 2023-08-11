@@ -17,8 +17,9 @@ public record ErrorContents(String message) implements FileContents {
 	}
 
 	@Override
-	public void writeText(String text) {
+	public boolean writeText(String text) {
 		// No-Write.
+		return false;
 	}
 
 	@Override

@@ -4,14 +4,23 @@ import valoeghese.latex.LatexEditor;
 import valoeghese.latex.LatexViewer;
 import valoeghese.latex.impl.ErrorContents;
 
+import javax.swing.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 public class Model {
+	public Model(JFrame frame) {
+		this.frame = frame;
+		this.defaultName = frame.getTitle();
+	}
+
+	private final JFrame frame;
+	private final String defaultName;
+
 	private final LatexViewer viewer = new LatexViewer(this);
-	private final LatexEditor editor = new LatexEditor();
+	private final LatexEditor editor = new LatexEditor(this);
 
 	/**
 	 * Open the file in the editor.
@@ -19,6 +28,18 @@ public class Model {
 	 */
 	public void open(Path path) {
 		this.editor.setContents(this.openFile(path));
+	}
+
+	/**
+	 * Set whether the current document is saved. That is, the in-memory contents are the same as (the known contents)
+	 * in the file.
+	 * This amends the title of the window accordingly.
+	 * @param saved whether the document is saved.
+	 */
+	public void setDocumentSaved(boolean saved) {
+		if (this.frame != null) {
+			this.frame.setTitle(this.defaultName + (saved ? "" : " *"));
+		}
 	}
 
 	/**
@@ -73,10 +94,13 @@ public class Model {
 		}
 
 		@Override
-		public void writeText(String text) {
+		public boolean writeText(String text) {
 			if (Model.this.saveFile(this.path, text)) {
 				this.text = text;
+				return true;
 			}
+
+			return false;
 		}
 
 		@Override

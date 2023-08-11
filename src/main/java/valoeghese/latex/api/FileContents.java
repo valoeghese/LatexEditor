@@ -11,8 +11,9 @@ public interface FileContents {
 
 	/**
 	 * Write the text to the file. Will do nothing if not writable.
+	 * @return whether the text was successfully written to the file.
 	 */
-	void writeText(String text);
+	boolean writeText(String text);
 
 	/**
 	 * Get whether this file contents is writable. Will be false if it is an error.
