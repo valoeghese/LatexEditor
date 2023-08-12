@@ -2,6 +2,7 @@ package valoeghese.latex;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import valoeghese.latex.api.DebugUtils;
 import valoeghese.latex.api.OperatingSystem;
 
 import javax.imageio.ImageIO;
@@ -151,6 +152,7 @@ public class LatexViewer extends JScrollPane {
 				for (int pageIndex = 0; pageIndex < document.getNumberOfPages(); pageIndex++) {
 					BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 300);
 					pages.add(image);
+					//DebugUtils.writeImageToFile(image, "run/page_" + pageIndex + ".png");
 				}
 
 				document.close();
@@ -221,7 +223,13 @@ public class LatexViewer extends JScrollPane {
 
 			double newHeight = imageHeight * ((double)panelWidth/imageWidth);
 
-			this.setPreferredSize(new Dimension(panelWidth, (int)newHeight));
+			if (this.getHeight() != (int) newHeight) {
+				this.setPreferredSize(new Dimension(panelWidth, (int) newHeight));
+				this.revalidate();
+				this.repaint();
+				return;
+			}
+
 			Graphics2D g2d = (Graphics2D) g;
 			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
