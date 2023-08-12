@@ -13,10 +13,11 @@ import javax.swing.tree.TreePath;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FilePicker extends JScrollPane {
 	public FilePicker(Model model, Path root) {
-		this.root = root;
 
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new FileTreeNode(root));
 		this.populateChildren(rootNode);
@@ -47,8 +48,32 @@ public class FilePicker extends JScrollPane {
 			if (e.getPath().getLastPathComponent() instanceof DefaultMutableTreeNode treeNode) {
 				if (treeNode.getUserObject() instanceof FileTreeNode node) {
 					if (Files.isRegularFile(node.getFile())) {
-						System.out.println("Opening " + node.getFile());
-						model.open(node.getFile());
+						String fileName = node.getFile().getFileName().toString();
+						int dotLoc = fileName.lastIndexOf(".");
+						String extension = dotLoc == -1 ? "" : fileName.substring(dotLoc);
+
+						if (canOpen(extension)) {
+							System.out.println("Opening " + node.getFile());
+							model.open(node.getFile());
+						} else {
+							String[] options = {"Ok", "Open Anyway"};
+
+							int result = JOptionPane.showOptionDialog(null,
+									"Only supports files of type " + EXTENSIONS.stream().collect(Collectors.joining(", ")),
+									"Unsupported File Type",
+									JOptionPane.DEFAULT_OPTION,
+									JOptionPane.INFORMATION_MESSAGE,
+									null,
+									options,
+									options[0]
+							);
+
+							if (result == 1) {
+								// this is on the user!
+								System.out.println("Opening " + node.getFile() + " anyway.");
+								model.open(node.getFile());
+							}
+						}
 					}
 				}
 			}
@@ -76,7 +101,12 @@ public class FilePicker extends JScrollPane {
 			}
 		}
 	}
-	private final Path root;
+
+	private static final List<String> EXTENSIONS = List.of(".tex", ".txt", ".log", ".xml");
+
+	private static boolean canOpen(String extension) {
+		return EXTENSIONS.contains(extension);
+	}
 
 	static class FileTreeNode {
 		private Path file;
