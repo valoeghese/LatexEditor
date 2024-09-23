@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LatexViewer extends JScrollPane {
 	public LatexViewer() {
 		this.loadRender(Path.of("gibberish.unsupportedfile"));
+		this.getVerticalScrollBar().setUnitIncrement(4);
 	}
 
 	// incremented to make async code ignore scrapped renders
@@ -150,7 +151,11 @@ public class LatexViewer extends JScrollPane {
 				PDFRenderer pdfRenderer = new PDFRenderer(document);
 
 				for (int pageIndex = 0; pageIndex < document.getNumberOfPages(); pageIndex++) {
-					BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 300);
+					//System.out.println(this.getWidth());
+					// 879 : 300
+					// TODO scale dpi when resize
+					BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, this.getWidth() < 600 ? 150 : 300);
+					//System.out.println(image.getWidth());
 					pages.add(image);
 					//DebugUtils.writeImageToFile(image, "run/page_" + pageIndex + ".png");
 				}

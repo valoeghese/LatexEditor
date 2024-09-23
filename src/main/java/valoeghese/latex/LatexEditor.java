@@ -38,6 +38,7 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 			// TODO indent entire line
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//System.out.println(LatexEditor.this.textArea.);
 				LatexEditor.this.textArea.replaceSelection("    ");
 			}
 		});
