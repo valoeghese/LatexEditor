@@ -68,6 +68,53 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 			}
 		});
 
+		inputMap.put(KeyStroke.getKeyStroke("shift TAB"), "deindentAction");
+		actionMap.put("deindentAction", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int end = LatexEditor.this.textArea.getSelectionEnd();
+				int start = LatexEditor.this.textArea.getSelectionStart();
+
+				try {
+					start = LatexEditor.this.textArea.getLineStartOffset(LatexEditor.this.textArea.getLineOfOffset(start));
+					end = LatexEditor.this.textArea.getLineEndOffset(LatexEditor.this.textArea.getLineOfOffset(end));
+
+					StringBuilder result = new StringBuilder();
+
+					if (end - start > 0) {
+						String[] content = LatexEditor.this.textArea.getText(start, end - start).split("\\n");
+
+						for (String s : content) {
+							// Shrink Tab
+							if (!s.isEmpty()) {
+								// case tabs
+								if (s.charAt(0) == '\t') {
+									s = s.substring(1);
+								}
+								// case spaces
+								else  {
+									int i;
+									int limit = Math.min(s.length(), FAKE_TAB.length());
+									for (i = 0; i < limit; i++) {
+										if (s.charAt(i) != ' ') {
+											break;
+										}
+									}
+									s = s.substring(i);
+								}
+							}
+
+							result.append(s).append('\n');
+						}
+					}
+
+					LatexEditor.this.textArea.replaceRange(result.toString(), start, end);
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+
 		inputMap.put(KeyStroke.getKeyStroke("ENTER"), "newLineAction");
 		actionMap.put("newLineAction", new AbstractAction() {
 			@Override
