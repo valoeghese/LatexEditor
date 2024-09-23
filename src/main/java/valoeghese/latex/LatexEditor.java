@@ -47,11 +47,14 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 						start = LatexEditor.this.textArea.getLineStartOffset(LatexEditor.this.textArea.getLineOfOffset(start));
 						end = LatexEditor.this.textArea.getLineStartOffset(LatexEditor.this.textArea.getLineOfOffset(end));
 
-						String[] content = LatexEditor.this.textArea.getText(start, end - start).split("\\n");
 						StringBuilder result = new StringBuilder();
 
-						for (String s : content) {
-							result.append(FAKE_TAB).append(s).append('\n');
+						if (end - start > 0) {
+							String[] content = LatexEditor.this.textArea.getText(start, end - start).split("\\n");
+
+							for (String s : content) {
+								result.append(FAKE_TAB).append(s).append('\n');
+							}
 						}
 						result.append(FAKE_TAB);
 
