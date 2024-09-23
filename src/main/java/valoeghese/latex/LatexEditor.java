@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class LatexEditor extends JScrollPane implements DocumentListener {
+	public static final String FAKE_TAB = "    ";
+
 	public LatexEditor(Model model) {
 		this.model = model;
 		this.textArea = new JTextArea();
@@ -35,11 +37,31 @@ public class LatexEditor extends JScrollPane implements DocumentListener {
 		inputMap.put(KeyStroke.getKeyStroke("TAB"), "indentAction");
 		actionMap.put("indentAction", new AbstractAction() {
 			// TODO make tabs and space width an option
-			// TODO indent entire line
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//System.out.println(LatexEditor.this.textArea.);
-				LatexEditor.this.textArea.replaceSelection("    ");
+				int end = LatexEditor.this.textArea.getSelectionEnd();
+				int start = LatexEditor.this.textArea.getSelectionStart();
+
+				if (end - start > 0) {
+					try {
+						start = LatexEditor.this.textArea.getLineStartOffset(LatexEditor.this.textArea.getLineOfOffset(start));
+						end = LatexEditor.this.textArea.getLineStartOffset(LatexEditor.this.textArea.getLineOfOffset(end));
+
+						String[] content = LatexEditor.this.textArea.getText(start, end - start).split("\\n");
+						StringBuilder result = new StringBuilder();
+
+						for (String s : content) {
+							result.append(FAKE_TAB).append(s).append('\n');
+						}
+						result.append(FAKE_TAB);
+
+						LatexEditor.this.textArea.replaceRange(result.toString(), start, end);
+					} catch (BadLocationException ex) {
+						ex.printStackTrace();
+					}
+				} else {
+					LatexEditor.this.textArea.replaceSelection(FAKE_TAB);
+				}
 			}
 		});
 
