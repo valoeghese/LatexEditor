@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LatexViewer extends JScrollPane {
 	public LatexViewer() {
 		this.loadRender(Path.of("gibberish.unsupportedfile"));
-		this.getVerticalScrollBar().setUnitIncrement(4);
+		this.getVerticalScrollBar().setUnitIncrement(8);
 	}
 
 	// incremented to make async code ignore scrapped renders
